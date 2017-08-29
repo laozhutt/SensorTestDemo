@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.36" />
+
+    <TextView
+        android:text="登录成功"
+        android:textSize="80px"
+        android:textColor="@android:color/holo_green_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+
+        android:gravity="center"/>
+
+    <Button
+        android:text="锁定系统"
+        android:textSize="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/lock"
+        android:background="@android:color/holo_green_light" />
+</LinearLayout>
