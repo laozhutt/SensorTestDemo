@@ -114,7 +114,7 @@
     <string name="password_label_reenter_new">Please Re-enter The Password</string>
     <string name="password_label_enter_old">Please Enter Your Old Password</string>
 
-    <string name="server_address">10.214.148.124</string>
+    <string name="server_address">139.224.207.24</string>
     <string name="server_port">8000</string>
     <string name="server_get_result_method">query</string>
     <string name="server_train_method">train</string>

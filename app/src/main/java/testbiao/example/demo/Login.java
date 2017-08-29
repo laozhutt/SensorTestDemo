@@ -1,17 +1,24 @@
 package testbiao.example.demo;
 
 import android.app.ProgressDialog;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -50,6 +57,8 @@ public class Login extends AppCompatActivity implements SensorEventListener {
     private ConnectionHandler connection;
     private ConnectionHandler conn;
     ProgressDialog m_pDialog;
+
+    final static int REQUEST_PERMISSION = 1;
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -107,6 +116,15 @@ public class Login extends AppCompatActivity implements SensorEventListener {
                 autocheck();
             }
         });
+
+        TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        if(hasPerssion()){
+
+        }else{
+            getPermission();
+//				Toast.makeText(MainActivity.this,"请打开应用存储权限申请",Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     @Override
@@ -344,5 +362,46 @@ public class Login extends AppCompatActivity implements SensorEventListener {
     private void startPasswordActivity() {
         Intent it = new Intent(Login.this, PasswordLogin.class);
         startActivity(it);
+    }
+
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(requestCode == REQUEST_PERMISSION){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+//                TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+//                configureObject.setProperty(getString(R.string.property_imei),tm.getDeviceId());
+
+            }else{
+
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void getPermission(){
+
+        if(ContextCompat.checkSelfPermission(Login.this, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(Login.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+//            TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+//            configureObject.setProperty(getString(R.string.property_imei),tm.getDeviceId());
+        }
+        else{
+            ActivityCompat.requestPermissions(Login.this, new String[]{android.Manifest.permission.READ_PHONE_STATE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION );
+        }
+
+    }
+
+    private boolean hasPerssion(){
+        PackageManager pm = getPackageManager();
+        boolean permission = (PackageManager.PERMISSION_GRANTED == pm.checkPermission("android.permission.READ_PHONE_STATE", "testbiao.example.demo") &&
+                PackageManager.PERMISSION_GRANTED == pm.checkPermission("android.permission.READ_PHONE_STATE", "testbiao.example.demo"));
+        if (permission) {
+            return true;
+        }
+        return false;
     }
 }
