@@ -15,8 +15,11 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -57,8 +60,12 @@ public class Login extends AppCompatActivity implements SensorEventListener {
     private ConnectionHandler connection;
     private ConnectionHandler conn;
     ProgressDialog m_pDialog;
+    public static Handler messageHandler;
 
     final static int REQUEST_PERMISSION = 1;
+
+    final static int MESSAGE_NO_NETWORK = 2;
+    final static int MESSAGE_NO_SENSOR = 3;
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -125,6 +132,21 @@ public class Login extends AppCompatActivity implements SensorEventListener {
 //				Toast.makeText(MainActivity.this,"请打开应用存储权限申请",Toast.LENGTH_SHORT).show();
 
         }
+
+        messageHandler = new Handler(){
+            public void handleMessage(Message m){
+                switch (m.what){
+                    case MESSAGE_NO_NETWORK:
+                        Toast.makeText(getApplicationContext(),"network not availiable",Toast.LENGTH_SHORT).show();
+                        break;
+                    case MESSAGE_NO_SENSOR:
+                        Toast.makeText(getApplicationContext(), "该机型传感器不完整，无法利用SensorDemo检测！ ", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
     }
 
     @Override
@@ -154,7 +176,9 @@ public class Login extends AppCompatActivity implements SensorEventListener {
     }
 
     private boolean check_is_user() {
-        collect();
+        if(!collect()){
+            return false;
+        }
         Log.e("collected", "ok");
         if(pointNum < 100){
             return false;
@@ -220,17 +244,20 @@ public class Login extends AppCompatActivity implements SensorEventListener {
         }
     }
 
-    public void collect() {
+    public boolean collect() {
         if (!isNetworkAvailable()) {
             Log.e(TAG, "network not availiable");
-
-            return;
+            Message m = new Message();
+            m.what = MESSAGE_NO_NETWORK;
+            messageHandler.sendMessage(m);
+            return false;
         }
         //判断机型是否合适
         if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == null || sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) == null || sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) == null) {
-            Toast toast = Toast.makeText(getApplicationContext(), "该机型传感器不完整，无法利用SensorDemo检测！ ", Toast.LENGTH_SHORT);
-            toast.show();
-            return;
+            Message m = new Message();
+            m.what = MESSAGE_NO_SENSOR;
+            messageHandler.sendMessage(m);
+            return false;
         }
 
         sensorManager.registerListener(this,
@@ -244,6 +271,7 @@ public class Login extends AppCompatActivity implements SensorEventListener {
                 SensorManager.SENSOR_DELAY_FASTEST);
         sensorDataList.clear();
         saveData();
+        return true;
 
     }
 
@@ -354,6 +382,7 @@ public class Login extends AppCompatActivity implements SensorEventListener {
                     startActivity(it);
                 }
                 m_pDialog.cancel();
+//                m_pDialog.dismiss();
 
             }
         }).start();
